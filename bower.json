@@ -1,0 +1,20 @@
+{
+  "name": "whiteHorse",
+  "version": "0.0.0",
+  "homepage": "https://github.com/charosez/whiteHorse",
+  "authors": [
+    "Charles Tai <charles@glasslabgames.org>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "chroma-js": "~0.5.8",
+    "datamaps": "~0.3.4"
+  }
+}

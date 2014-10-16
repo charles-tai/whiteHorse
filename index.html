@@ -27,26 +27,40 @@ var processLevel = function(moneySpent) {
  	}
 }
 
-var processEventData = function(mapData,eventData) {
+var processEventData = function(mapData,eventData,partyColor) {
 	data = {};
 	for (var string in eventData) {
 		var array = string.split('_');
-		console.log(string);
+		if (array[1]) {
+			var color = array[1].split('Total')[0];
+		}
+
 		if (array) {
 			var state = array[0];
 			if (data[state] === undefined) {
-				data[state] = eventData[string];
+				data[state] = {};
+				data[state].total = eventData[string];
+				partyColor ? (data[state][color] = eventData[string]) : '';
 			} else {
-				data[state] += eventData[string];
+				data[state].total += eventData[string];
+				partyColor ? (data[state][color] = eventData[string]) : '';
 			}	
 		}	
 	}
-
-	for (var state in data) {
-		if (mapData[state]) {
-			mapData[state].fillKey = processLevel(data[state]);
+	if (partyColor) {
+		for (var state in data) {
+			if (mapData[state]) {
+				mapData[state].fillKey = processLevel(data[state][partyColor]);
+			}
 		}
+	} else {
+		for (var state in data) {
+			if (mapData[state]) {
+				mapData[state].fillKey = processLevel(data[state][party]);
+			}
+		}		
 	}
+	console.log(data);
 	return mapData;
 }
 
@@ -333,14 +347,11 @@ var election = new Datamap({
 	      "fillKey": "Republican",
 	      "electoralVotes": 9
 	  }
-  },blob.key.eventData)
+  },blob.key.eventData,'blue')
 });
 
 election.labels();
 
 
-
-
-console.log(processEventData(blob.key.eventData));
 
 </script>
