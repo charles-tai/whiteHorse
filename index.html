@@ -1,0 +1,346 @@
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="bower_components/datamaps/dist/datamaps.all.js"></script>
+<script src="bower_components/chroma-js/chroma.min.js"></script>
+
+<div id="container" style="position: relative; width: 1500px; height: 900px;"></div>
+<script>
+
+var processLevel = function(moneySpent) {
+ 	if (moneySpent > 0 && moneySpent <= 100) {
+ 		return 'level0';
+ 	}
+ 	else if (moneySpent > 100 && moneySpent <= 200) {
+ 		return 'level1';	
+ 	}
+ 	else if (moneySpent > 200 && moneySpent <= 300) {
+ 		return 'level2';
+ 	}
+ 	else if (moneySpent > 300 && moneySpent <= 400) {
+ 		return 'level3';
+ 	}
+ 	else if (moneySpent > 400 && moneySpent <= 500) {
+ 		return 'level4';
+ 	}
+ 	else if (moneySpent > 500 && moneySpent <= 600) {
+ 		return 'level5'
+ 	}
+}
+
+var processEventData = function(mapData,eventData) {
+	data = {};
+	for (var string in eventData) {
+		var array = string.split('_');
+		console.log(string);
+		if (array) {
+			var state = array[0];
+			if (data[state] === undefined) {
+				data[state] = eventData[string];
+			} else {
+				data[state] += eventData[string];
+			}	
+		}	
+	}
+
+	for (var state in data) {
+		if (mapData[state]) {
+			mapData[state].fillKey = processLevel(data[state]);
+		}
+	}
+	return mapData;
+}
+
+var blob = {
+	"id": "gd:e:BG538:182",
+	"key": {
+	"clientTimeStamp": 1413497554000,
+	"deviceId": "_6359E834-C1D9-4F18-A141-58DD8852FE49",
+		"eventData": {
+			"CO_blueTotalMoneySpent": 45,
+			"CO_redTotalMoneySpent": 0,
+			"IA_blueTotalMoneySpent": 0,
+			"IA_redTotalMoneySpent": 20,
+			"IN_blueTotalMoneySpent": 0,
+			"IN_redTotalMoneySpent": 20,
+			"MI_blueTotalMoneySpent": 275,
+			"MI_redTotalMoneySpent": 30,
+			"MO_blueTotalMoneySpent": 135,
+			"MO_redTotalMoneySpent": 50,
+			"MT_blueTotalMoneySpent": 45,
+			"MT_redTotalMoneySpent": 0,
+			"NC_blueTotalMoneySpent": 135,
+			"NC_redTotalMoneySpent": 0,
+			"ND_blueTotalMoneySpent": 0,
+			"ND_redTotalMoneySpent": 10,
+			"NH_blueTotalMoneySpent": 0,
+			"NH_redTotalMoneySpent": 20,
+			"NM_blueTotalMoneySpent": 45,
+			"NM_redTotalMoneySpent": 0,
+			"OH_blueTotalMoneySpent": 315,
+			"OH_redTotalMoneySpent": 230,
+			"PA_blueTotalMoneySpent": 0,
+			"PA_redTotalMoneySpent": 20,
+			"SD_blueTotalMoneySpent": 45,
+			"SD_redTotalMoneySpent": 0,
+			"WI_blueTotalMoneySpent": 0,
+			"WI_redTotalMoneySpent": 10,
+			"blueVotes": 253,
+			"redVotes": 285,
+			"victor": "Red"
+		},
+		"eventName": "electionOver",
+		"gameId": "BG538",
+		"gameSessionEventOrder": 165,
+		"gameSessionId": "cf263500-5580-11e4-93ac-e59f0307dbf4",
+		"playSessionEventOrder": 182,
+		"playSessionId": "bd2c00f0-5580-11e4-93ac-e59f0307dbf4",
+		"totalTimePlayed": 0,
+		"serverTimeStamp": 1413497619327
+	},
+	"value": null
+}
+
+var scaleColor = function(votes,party) {
+	var scale = chroma.scale(['#CCFFCC', '#006400']).domain([1, 1000], 10, 'log');
+	if (party === 'demo') {
+		var scale = chroma.scale(['#CAE1FF', '#333399']).domain([1, 55], 10, 'log');
+	}
+
+	else if (party === 'rep') {
+		var scale = chroma.scale(['#FFB6C1', '#b30000']).domain([1, 55], 10, 'log');
+	}
+	return scale(votes).hex();
+}
+var election = new Datamap({
+  scope: 'usa',
+  element: document.getElementById('container'),
+  geographyConfig: {
+    highlightBorderColor: '#ff3333',
+    highlightBorderWidth: 3,
+    borderWidth: 1,
+    borderColor: '#A8A8A8',
+    popupTemplate: function(geography, data) {
+      return '<div class="hoverinfo" style="font-size:18">' +'<b>Electoral Votes:</b> ' +  data.electoralVotes + '</div>'
+    }
+  },
+  fills: {
+  'level0': '#CCFFCC',
+  'level1': '#00CC66',
+  'level2': '#66CC00',
+  'level3': '#4C9900',
+  'level4': '#009900',
+  'level5': '#006633',
+  defaultFill: '#F0FFF0'
+  },
+  data:processEventData({
+	  "AZ": {
+	      "fillKey": 'scaleColor(55)',
+	      "electoralVotes": 10
+	  },
+	  "CO": {
+	      "fillKey": 'scaleColor(1)',
+	      "electoralVotes": 9
+	  },
+	  "DE": {
+	      "fillKey": 'scaleColor(20)',
+	      "electoralVotes": 3
+	  },
+	  "FL": {
+	      "fillKey": 'scaleColor(55)',
+	      "electoralVotes": 27
+	  },
+	  "GA": {
+	      "fillKey": 'scaleColor(26)',
+	      "electoralVotes": 15
+	  },
+	  "HI": {
+	      "fillKey": 'scaleColor(12)',
+	      "electoralVotes": 4
+	  },
+	  "ID": {
+	      "fillKey": scaleColor(1000),
+	      "electoralVotes": 4
+	  },
+	  "IL": {
+	      "fillKey": scaleColor(800),
+	      "electoralVotes": 21
+	  },
+	  "IN": {
+	      "fillKey": scaleColor(600),
+	      "electoralVotes": 11
+	  },
+	  "IA": {
+	      "fillKey": scaleColor(400),
+	      "electoralVotes": 7
+	  },
+	  "KS": {
+	      "fillKey": scaleColor(200),
+	      "electoralVotes": 6
+	  },
+	  "KY": {
+	      "fillKey": scaleColor(50),
+	      "electoralVotes": 8
+	  },
+	  "LA": {
+	      "fillKey": 'scaleColor(5)',
+	      "electoralVotes": 9
+	  },
+	  "MD": {
+	      "fillKey": 'scaleColor(2)',
+	      "electoralVotes": 10
+	  },
+	  "ME": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 4
+	  },
+	  "MA": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 12
+	  },
+	  "MN": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 10
+	  },
+	  "MI": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 6
+	  },
+	  "MS": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 6
+	  },
+	  "MO": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 11
+	  },
+	  "MT": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 3
+	  },
+	  "NC": {
+	      "fillKey": "Light Republican",
+	      "electoralVotes": 15
+	  },
+	  "NE": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 5
+	  },
+	  "NV": {
+	      "fillKey": "Heavy Democrat",
+	      "electoralVotes": 5
+	  },
+	  "NH": {
+	      "fillKey": "Light Democrat",
+	      "electoralVotes": 4
+	  },
+	  "NJ": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 15
+	  },
+	  "NY": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 31
+	  },
+	  "ND": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 3
+	  },
+	  "NM": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 5
+	  },
+	  "OH": {
+	      "fillKey": "UNDECIDED",
+	      "electoralVotes": 20
+	  },
+	  "OK": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 7
+	  },
+	  "OR": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 7
+	  },
+	  "PA": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 21
+	  },
+	  "RI": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 4
+	  },
+	  "SC": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 8
+	  },
+	  "SD": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 3
+	  },
+	  "TN": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 11
+	  },
+	  "TX": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 34
+	  },
+	  "UT": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 5
+	  },
+	  "WI": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 10
+	  },
+	  "VA": {
+	      "fillKey": "Light Democrat",
+	      "electoralVotes": 13
+	  },
+	  "VT": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 3
+	  },
+	  "WA": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 11
+	  },
+	  "WV": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 5
+	  },
+	  "WY": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 3
+	  },
+	  "CA": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 55
+	  },
+	  "CT": {
+	      "fillKey": "Democrat",
+	      "electoralVotes": 7
+	  },
+	  "AK": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 3
+	  },
+	  "AR": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 6
+	  },
+	  "AL": {
+	      "fillKey": "Republican",
+	      "electoralVotes": 9
+	  }
+  },blob.key.eventData)
+});
+
+election.labels();
+
+
+
+
+console.log(processEventData(blob.key.eventData));
+
+</script>
