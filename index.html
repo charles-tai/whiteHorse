@@ -6,27 +6,30 @@
 <div id="container" style="position: relative; width: 1500px; height: 900px;"></div>
 <script>
 
+// processLevel generates a level b
 var processLevel = function(moneySpent) {
- 	if (moneySpent > 0 && moneySpent <= 100) {
+ 	if (moneySpent === 0) {
  		return 'level0';
  	}
- 	else if (moneySpent > 100 && moneySpent <= 200) {
+ 	else if (moneySpent > 0 && moneySpent <= 70) {
  		return 'level1';	
  	}
- 	else if (moneySpent > 200 && moneySpent <= 300) {
+ 	else if (moneySpent > 70 && moneySpent <= 140) {
  		return 'level2';
  	}
- 	else if (moneySpent > 300 && moneySpent <= 400) {
+ 	else if (moneySpent > 140 && moneySpent <= 210) {
  		return 'level3';
  	}
- 	else if (moneySpent > 400 && moneySpent <= 500) {
+ 	else if (moneySpent > 210 && moneySpent <= 280) {
  		return 'level4';
  	}
- 	else if (moneySpent > 500 && moneySpent <= 600) {
+ 	else if (moneySpent > 280) {
  		return 'level5'
  	}
 }
-
+// processEventData merges mapData with eventData
+// if partyColor is specified it returns mapData with money spent specific to that color
+// if partyColor is not specified it returns mapData with total money spent
 var processEventData = function(mapData,eventData,partyColor) {
 	data = {};
 	for (var string in eventData) {
@@ -49,18 +52,23 @@ var processEventData = function(mapData,eventData,partyColor) {
 	}
 	if (partyColor) {
 		for (var state in data) {
-			if (mapData[state]) {
+			if (!mapData[state]) {
+				mapData[state] = {};
+				mapData[state].fillKey = processLevel(data[state][partyColor]);
+			} else {
 				mapData[state].fillKey = processLevel(data[state][partyColor]);
 			}
 		}
 	} else {
 		for (var state in data) {
-			if (mapData[state]) {
-				mapData[state].fillKey = processLevel(data[state][party]);
+			if (!mapData[state]) {
+				mapData[state] = {};
+				mapData[state].fillKey = processLevel(data[state]);
+			} else {
+				mapData[state].fillKey = processLevel(data[state].total);
 			}
 		}		
 	}
-	console.log(data);
 	return mapData;
 }
 
@@ -125,6 +133,7 @@ var scaleColor = function(votes,party) {
 	}
 	return scale(votes).hex();
 }
+
 var election = new Datamap({
   scope: 'usa',
   element: document.getElementById('container'),
@@ -347,7 +356,7 @@ var election = new Datamap({
 	      "fillKey": "Republican",
 	      "electoralVotes": 9
 	  }
-  },blob.key.eventData,'red')
+  },blob.key.eventData)
 });
 
 election.labels();
